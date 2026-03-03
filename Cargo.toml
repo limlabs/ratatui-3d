@@ -9,13 +9,19 @@ license = "MIT"
 ratatui = "0.30"
 glam = "0.29"
 tobj = { version = "4", default-features = false, optional = true }
+gltf = { version = "1.4", default-features = false, optional = true, features = ["import", "utils", "names"] }
 
 [dev-dependencies]
 crossterm = "0.29"
 
 [features]
-default = ["obj"]
+default = ["obj", "gltf"]
 obj = ["dep:tobj"]
+gltf = ["dep:gltf"]
 
 [[example]]
 name = "cube"
+
+[[example]]
+name = "trex"
+required-features = ["gltf"]

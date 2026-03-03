@@ -1,5 +1,5 @@
 use crate::math::Vec3;
-use crate::mesh::{Mesh, Vertex};
+use crate::mesh::{compute_normals, Mesh, Vertex};
 use std::path::Path;
 
 /// Load meshes from an OBJ file. Returns one `Mesh` per model in the file.
@@ -37,21 +37,4 @@ pub fn load_obj(path: impl AsRef<Path>) -> Result<Vec<Mesh>, String> {
     }
 
     Ok(meshes)
-}
-
-/// Compute smooth vertex normals by averaging face normals.
-fn compute_normals(vertices: &mut [Vertex], indices: &[u32]) {
-    for tri in indices.chunks_exact(3) {
-        let (i0, i1, i2) = (tri[0] as usize, tri[1] as usize, tri[2] as usize);
-        let v0 = vertices[i0].position;
-        let v1 = vertices[i1].position;
-        let v2 = vertices[i2].position;
-        let face_normal = (v1 - v0).cross(v2 - v0);
-        vertices[i0].normal += face_normal;
-        vertices[i1].normal += face_normal;
-        vertices[i2].normal += face_normal;
-    }
-    for v in vertices.iter_mut() {
-        v.normal = v.normal.normalize_or_zero();
-    }
 }

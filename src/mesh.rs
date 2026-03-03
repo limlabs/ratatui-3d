@@ -41,3 +41,22 @@ impl Mesh {
         self.indices.len() / 3
     }
 }
+
+/// Compute smooth vertex normals by averaging face normals.
+///
+/// Vertices must already have positions set. Their normals will be overwritten.
+pub fn compute_normals(vertices: &mut [Vertex], indices: &[u32]) {
+    for tri in indices.chunks_exact(3) {
+        let (i0, i1, i2) = (tri[0] as usize, tri[1] as usize, tri[2] as usize);
+        let v0 = vertices[i0].position;
+        let v1 = vertices[i1].position;
+        let v2 = vertices[i2].position;
+        let face_normal = (v1 - v0).cross(v2 - v0);
+        vertices[i0].normal += face_normal;
+        vertices[i1].normal += face_normal;
+        vertices[i2].normal += face_normal;
+    }
+    for v in vertices.iter_mut() {
+        v.normal = v.normal.normalize_or_zero();
+    }
+}
