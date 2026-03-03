@@ -4,6 +4,12 @@ version = "0.1.0"
 edition = "2021"
 description = "3D software renderer for terminal UIs, built on ratatui"
 license = "MIT"
+repository = "https://github.com/limlabs/ratatui-3d"
+homepage = "https://github.com/limlabs/ratatui-3d"
+keywords = ["ratatui", "3d", "renderer", "terminal", "tui"]
+categories = ["command-line-interface", "graphics", "rendering"]
+readme = "README.md"
+exclude = ["assets/"]
 
 [dependencies]
 ratatui = "0.30"
