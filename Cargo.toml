@@ -1,0 +1,21 @@
+[package]
+name = "ratatui-3d"
+version = "0.1.0"
+edition = "2021"
+description = "3D software renderer for terminal UIs, built on ratatui"
+license = "MIT"
+
+[dependencies]
+ratatui = "0.30"
+glam = "0.29"
+tobj = { version = "4", default-features = false, optional = true }
+
+[dev-dependencies]
+crossterm = "0.29"
+
+[features]
+default = ["obj"]
+obj = ["dep:tobj"]
+
+[[example]]
+name = "cube"
