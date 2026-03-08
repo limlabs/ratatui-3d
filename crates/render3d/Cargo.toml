@@ -1,0 +1,21 @@
+[package]
+name = "render3d"
+version = "0.1.0"
+edition = "2021"
+description = "3D software renderer engine"
+license = "MIT"
+repository = "https://github.com/limlabs/ratatui-3d"
+
+[dependencies]
+glam = "0.29"
+tobj = { version = "4", default-features = false, optional = true }
+gltf = { version = "1.4", default-features = false, optional = true, features = ["import", "utils", "names"] }
+wgpu = { version = "24", optional = true }
+pollster = { version = "0.4", optional = true }
+bytemuck = { version = "1", features = ["derive"], optional = true }
+
+[features]
+default = ["obj", "gltf", "gpu"]
+obj = ["dep:tobj"]
+gltf = ["dep:gltf"]
+gpu = ["dep:wgpu", "dep:pollster", "dep:bytemuck"]

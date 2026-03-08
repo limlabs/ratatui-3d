@@ -1,0 +1,23 @@
+{
+  "name": "render3d",
+  "version": "0.1.0",
+  "description": "3D software renderer engine with ray tracing — Node.js bindings",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/limlabs/ratatui-3d"
+  },
+  "napi": {
+    "name": "render3d",
+    "triples": {}
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0"
+  },
+  "scripts": {
+    "build": "napi build --release",
+    "build:debug": "napi build"
+  }
+}

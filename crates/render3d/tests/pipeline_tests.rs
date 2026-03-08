@@ -1,9 +1,9 @@
-use ratatui_3d::prelude::*;
-use ratatui_3d::pipeline::{self, Framebuffer};
-use ratatui_3d::pipeline::vertex::transform_vertex;
-use ratatui_3d::pipeline::fragment::shade_fragment;
-use ratatui_3d::pipeline::rasterize::rasterize_triangle;
-use ratatui_3d::pipeline::vertex::TransformedVertex;
+use render3d::prelude::*;
+use render3d::pipeline::{self, Framebuffer};
+use render3d::pipeline::vertex::transform_vertex;
+use render3d::pipeline::fragment::shade_fragment;
+use render3d::pipeline::rasterize::rasterize_triangle;
+use render3d::pipeline::vertex::TransformedVertex;
 
 // ============================================================
 // Integration test: full pipeline render

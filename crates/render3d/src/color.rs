@@ -41,10 +41,6 @@ impl Rgb {
         (0.299 * self.0 as f32 + 0.587 * self.1 as f32 + 0.114 * self.2 as f32) / 255.0
     }
 
-    /// Convert to ratatui Color.
-    pub fn to_ratatui(self) -> ratatui::style::Color {
-        ratatui::style::Color::Rgb(self.0, self.1, self.2)
-    }
 }
 
 impl ops::Add for Rgb {
@@ -56,11 +52,5 @@ impl ops::Add for Rgb {
             self.1.saturating_add(other.1),
             self.2.saturating_add(other.2),
         )
-    }
-}
-
-impl From<Rgb> for ratatui::style::Color {
-    fn from(c: Rgb) -> Self {
-        c.to_ratatui()
     }
 }

@@ -1,0 +1,22 @@
+[package]
+name = "render3d-node"
+version = "0.1.0"
+edition = "2021"
+description = "Node.js bindings for the render3d 3D engine"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+render3d = { path = "../render3d", default-features = false }
+napi = { version = "2", features = ["napi4"] }
+napi-derive = "2"
+
+[build-dependencies]
+napi-build = "2"
+
+[features]
+default = ["obj", "gltf"]
+obj = ["render3d/obj"]
+gltf = ["render3d/gltf"]

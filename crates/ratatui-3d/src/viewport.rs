@@ -1,7 +1,7 @@
-use crate::camera::Camera;
-use crate::pipeline::{self, Framebuffer, Pipeline};
+use render3d::camera::Camera;
+use render3d::pipeline::{self, Framebuffer, Pipeline};
 use crate::render_mode::RenderMode;
-use crate::scene::Scene;
+use render3d::scene::Scene;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::widgets::{Block, StatefulWidget, Widget};

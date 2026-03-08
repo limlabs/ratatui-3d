@@ -1,5 +1,5 @@
-use crate::color::Rgb;
-use crate::pipeline::framebuffer::Framebuffer;
+use render3d::color::Rgb;
+use render3d::pipeline::framebuffer::Framebuffer;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::{Color, Style};
@@ -22,7 +22,7 @@ impl RenderMode {
         match self {
             RenderMode::HalfBlock => (area.width as u32, area.height as u32 * 2),
             RenderMode::Braille => (area.width as u32 * 2, area.height as u32 * 4),
-            RenderMode::Ascii => (area.width as u32, area.height as u32),
+            RenderMode::Ascii => (area.width as u32 * 2, area.height as u32 * 2),
         }
     }
 
@@ -138,18 +138,40 @@ fn blit_braille(fb: &Framebuffer, area: Rect, buf: &mut Buffer) {
 
 const ASCII_RAMP: &[u8] = b" .:-=+*#%@";
 
-/// ASCII blit: map luminance to a character ramp, colored with the pixel color.
+/// ASCII blit: 2×2 pixel block per cell, averaged and mapped to a character ramp.
+/// Renders at double resolution in both axes for correct aspect ratio.
 fn blit_ascii(fb: &Framebuffer, area: Rect, buf: &mut Buffer) {
     for row in 0..area.height {
         for col in 0..area.width {
-            let px = col as u32;
-            let py = row as u32;
+            let base_x = col as u32 * 2;
+            let base_y = row as u32 * 2;
 
-            let color = if px < fb.width && py < fb.height {
-                fb.get_pixel(px, py)
-            } else {
-                Rgb::BLACK
-            };
+            let mut total_r: u32 = 0;
+            let mut total_g: u32 = 0;
+            let mut total_b: u32 = 0;
+            let mut n: u32 = 0;
+
+            for dy in 0..2u32 {
+                for dx in 0..2u32 {
+                    let px = base_x + dx;
+                    let py = base_y + dy;
+                    let c = if px < fb.width && py < fb.height {
+                        fb.get_pixel(px, py)
+                    } else {
+                        Rgb::BLACK
+                    };
+                    total_r += c.0 as u32;
+                    total_g += c.1 as u32;
+                    total_b += c.2 as u32;
+                    n += 1;
+                }
+            }
+
+            let color = Rgb(
+                (total_r / n) as u8,
+                (total_g / n) as u8,
+                (total_b / n) as u8,
+            );
 
             let lum = color.luminance();
             let idx = (lum * (ASCII_RAMP.len() - 1) as f32).round() as usize;

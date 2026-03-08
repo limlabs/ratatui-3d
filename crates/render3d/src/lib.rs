@@ -8,10 +8,8 @@ pub mod mesh;
 pub mod object;
 pub mod pipeline;
 pub mod primitives;
-pub mod render_mode;
 pub mod scene;
 pub mod transform;
-pub mod viewport;
 
 // Re-exports for convenience
 pub use camera::{Camera, Projection};
@@ -20,12 +18,9 @@ pub use light::Light;
 pub use material::Material;
 pub use mesh::{Mesh, Vertex};
 pub use object::SceneObject;
-pub use render_mode::RenderMode;
+pub use pipeline::Pipeline;
 pub use scene::{Scene, Sky};
 pub use transform::Transform;
-pub use viewport::{Viewport3D, Viewport3DState, Viewport3DStatic};
-
-pub use pipeline::Pipeline;
 
 /// Prelude for convenient glob imports.
 pub mod prelude {
@@ -38,8 +33,6 @@ pub mod prelude {
     pub use crate::object::SceneObject;
     pub use crate::pipeline::Pipeline;
     pub use crate::primitives;
-    pub use crate::render_mode::RenderMode;
     pub use crate::scene::{Scene, Sky};
     pub use crate::transform::Transform;
-    pub use crate::viewport::{Viewport3D, Viewport3DState, Viewport3DStatic};
 }

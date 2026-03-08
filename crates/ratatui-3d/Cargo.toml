@@ -1,0 +1,38 @@
+[package]
+name = "ratatui-3d"
+version = "0.1.0"
+edition = "2021"
+description = "3D software renderer for terminal UIs, built on ratatui"
+license = "MIT"
+repository = "https://github.com/limlabs/ratatui-3d"
+homepage = "https://github.com/limlabs/ratatui-3d"
+keywords = ["ratatui", "3d", "renderer", "terminal", "tui"]
+categories = ["command-line-interface", "graphics", "rendering"]
+
+[dependencies]
+render3d = { path = "../render3d" }
+ratatui = "0.30"
+
+[dev-dependencies]
+crossterm = "0.29"
+
+[features]
+default = ["obj", "gltf", "gpu"]
+obj = ["render3d/obj"]
+gltf = ["render3d/gltf"]
+gpu = ["render3d/gpu"]
+
+[[example]]
+name = "cube"
+
+[[example]]
+name = "trex"
+required-features = ["gltf", "gpu"]
+
+[[example]]
+name = "cornell"
+required-features = ["gpu"]
+
+[[example]]
+name = "dna"
+required-features = ["gltf", "gpu"]
