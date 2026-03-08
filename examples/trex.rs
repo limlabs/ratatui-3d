@@ -46,6 +46,8 @@ fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> io::Result<()> 
                 .with_transform({
                     let mut t = Transform::default();
                     t.scale = Vec3::splat(model_scale);
+                    // Lower so feet touch the ground plane at y=-3
+                    t.position = Vec3::new(0.0, -3.0, 0.0);
                     t
                 }),
         );
@@ -67,18 +69,24 @@ fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> io::Result<()> 
             }),
     );
 
-    // Lights
-    scene.add_light(Light::ambient(Rgb(255, 255, 255), 0.2));
+    // Lights — single directional to avoid double shadows
+    scene.add_light(Light::ambient(Rgb(255, 255, 255), 0.25));
     scene.add_light(Light::directional(
         Vec3::new(-1.0, -1.0, -1.0),
         Rgb(255, 255, 255),
     ));
-    scene.add_light(Light::point(Vec3::new(5.0, 8.0, 5.0), Rgb(255, 220, 180)));
+
+    scene = scene.with_sky(Sky {
+        zenith: Rgb(40, 80, 180),
+        horizon: Rgb(160, 190, 230),
+        ground: Rgb(60, 120, 60),
+    });
 
     // Viewport state — camera positioned to frame the scaled model
     let mut state = Viewport3DState::default();
     state.camera.position = Vec3::new(5.0, 4.0, 8.0);
     state.camera.target = Vec3::new(0.0, 1.0, 0.0);
+    state.pipeline = Pipeline::RaytraceGpu;
 
     let start = Instant::now();
 
@@ -92,13 +100,14 @@ fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> io::Result<()> 
         for obj in &mut scene.objects[trex_start..trex_end] {
             obj.transform.rotation = spin * base;
             obj.transform.scale = Vec3::splat(model_scale);
+            obj.transform.position = Vec3::new(0.0, -3.0, 0.0);
         }
 
         // Draw
         terminal.draw(|f| {
             let block = Block::bordered().title(format!(
-                " T-Rex | Mode: {:?} | [1/2/3] mode [arrows] orbit [+/-] zoom [q] quit ",
-                state.render_mode
+                " T-Rex | {:?} {:?} | [1/2/3] mode [r] raytrace [arrows] orbit [+/-] zoom [q] quit ",
+                state.pipeline, state.render_mode
             ));
             f.render_stateful_widget(Viewport3D::new(&scene).block(block), f.area(), &mut state);
         })?;
@@ -111,6 +120,13 @@ fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> io::Result<()> 
                 }
                 match key.code {
                     KeyCode::Char('q') | KeyCode::Esc => break,
+                    KeyCode::Char('r') => {
+                        state.pipeline = match state.pipeline {
+                            Pipeline::Rasterize => Pipeline::Raytrace,
+                            Pipeline::Raytrace => Pipeline::RaytraceGpu,
+                            Pipeline::RaytraceGpu => Pipeline::Rasterize,
+                        };
+                    }
                     KeyCode::Char('1') => state.render_mode = RenderMode::HalfBlock,
                     KeyCode::Char('2') => state.render_mode = RenderMode::Braille,
                     KeyCode::Char('3') => state.render_mode = RenderMode::Ascii,

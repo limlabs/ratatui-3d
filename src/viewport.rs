@@ -1,5 +1,5 @@
 use crate::camera::Camera;
-use crate::pipeline::{self, Framebuffer};
+use crate::pipeline::{self, Framebuffer, Pipeline};
 use crate::render_mode::RenderMode;
 use crate::scene::Scene;
 use ratatui::buffer::Buffer;
@@ -10,7 +10,10 @@ use ratatui::widgets::{Block, StatefulWidget, Widget};
 pub struct Viewport3DState {
     pub camera: Camera,
     pub render_mode: RenderMode,
+    pub pipeline: Pipeline,
     framebuffer: Framebuffer,
+    #[cfg(feature = "gpu")]
+    gpu_renderer: Option<pipeline::raytrace_gpu::GpuRenderer>,
 }
 
 impl Default for Viewport3DState {
@@ -18,7 +21,10 @@ impl Default for Viewport3DState {
         Self {
             camera: Camera::default(),
             render_mode: RenderMode::default(),
+            pipeline: Pipeline::default(),
             framebuffer: Framebuffer::new(0, 0),
+            #[cfg(feature = "gpu")]
+            gpu_renderer: None,
         }
     }
 }
@@ -28,7 +34,10 @@ impl Viewport3DState {
         Self {
             camera,
             render_mode,
+            pipeline: Pipeline::default(),
             framebuffer: Framebuffer::new(0, 0),
+            #[cfg(feature = "gpu")]
+            gpu_renderer: None,
         }
     }
 }
@@ -76,7 +85,21 @@ impl<'a> StatefulWidget for Viewport3D<'a> {
         }
 
         // Run the rendering pipeline
-        pipeline::render(self.scene, &state.camera, &mut state.framebuffer);
+        match state.pipeline {
+            Pipeline::Rasterize => {
+                pipeline::render(self.scene, &state.camera, &mut state.framebuffer)
+            }
+            Pipeline::Raytrace => {
+                pipeline::raytrace::render(self.scene, &state.camera, &mut state.framebuffer)
+            }
+            #[cfg(feature = "gpu")]
+            Pipeline::RaytraceGpu => {
+                let renderer = state
+                    .gpu_renderer
+                    .get_or_insert_with(pipeline::raytrace_gpu::GpuRenderer::new);
+                renderer.render(self.scene, &state.camera, &mut state.framebuffer);
+            }
+        }
 
         // Blit framebuffer to terminal cells
         state.render_mode.blit(&state.framebuffer, inner, buf);

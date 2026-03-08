@@ -16,18 +16,30 @@ ratatui = "0.30"
 glam = "0.29"
 tobj = { version = "4", default-features = false, optional = true }
 gltf = { version = "1.4", default-features = false, optional = true, features = ["import", "utils", "names"] }
+wgpu = { version = "24", optional = true }
+pollster = { version = "0.4", optional = true }
+bytemuck = { version = "1", features = ["derive"], optional = true }
 
 [dev-dependencies]
 crossterm = "0.29"
 
 [features]
-default = ["obj", "gltf"]
+default = ["obj", "gltf", "gpu"]
 obj = ["dep:tobj"]
 gltf = ["dep:gltf"]
+gpu = ["dep:wgpu", "dep:pollster", "dep:bytemuck"]
 
 [[example]]
 name = "cube"
 
 [[example]]
 name = "trex"
-required-features = ["gltf"]
+required-features = ["gltf", "gpu"]
+
+[[example]]
+name = "cornell"
+required-features = ["gpu"]
+
+[[example]]
+name = "dna"
+required-features = ["gltf", "gpu"]

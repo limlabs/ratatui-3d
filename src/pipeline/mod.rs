@@ -1,6 +1,9 @@
 pub mod fragment;
 pub mod framebuffer;
 pub mod rasterize;
+pub mod raytrace;
+#[cfg(feature = "gpu")]
+pub mod raytrace_gpu;
 pub mod vertex;
 
 use crate::camera::Camera;
@@ -9,6 +12,19 @@ use rasterize::rasterize_triangle;
 use vertex::transform_vertex;
 
 pub use framebuffer::Framebuffer;
+
+/// Which rendering pipeline to use.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Pipeline {
+    /// Scanline rasterization (fast).
+    #[default]
+    Rasterize,
+    /// Ray tracing with shadows (slower, more realistic).
+    Raytrace,
+    /// GPU-accelerated ray tracing via wgpu compute shaders.
+    #[cfg(feature = "gpu")]
+    RaytraceGpu,
+}
 
 /// Execute the full rendering pipeline for a scene.
 pub fn render(scene: &Scene, camera: &Camera, fb: &mut Framebuffer) {

@@ -8,9 +8,9 @@ use ratatui::style::{Color, Style};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum RenderMode {
     /// Half-block characters: 2 vertical pixels per cell using ▀ with fg=upper, bg=lower.
-    #[default]
     HalfBlock,
-    /// Braille characters: 2×4 dots per cell for high-resolution monochrome.
+    /// Supersampled half-block: 2×4 pixels per cell averaged into ▀, giving anti-aliased edges.
+    #[default]
     Braille,
     /// ASCII shading ramp with colored characters.
     Ascii,
@@ -67,60 +67,71 @@ fn blit_half_block(fb: &Framebuffer, area: Rect, buf: &mut Buffer) {
     }
 }
 
-/// Braille blit: each cell maps to a 2×4 dot grid. Dots are set based on luminance threshold.
+/// Supersampled half-block blit: renders at 2×4 pixel resolution per cell
+/// (same as braille) but displays using ▀ half-block characters.
+/// Top 2 rows of pixels (4 samples) are averaged for fg, bottom 2 rows for bg.
+/// This gives anti-aliased edges with 2× horizontal supersampling — smoother
+/// than standard half-block without the visual artifacts of braille dots.
 fn blit_braille(fb: &Framebuffer, area: Rect, buf: &mut Buffer) {
-    // Braille dot offsets within Unicode block U+2800..U+28FF
-    // Dot numbering:  0 3
-    //                 1 4
-    //                 2 5
-    //                 6 7
-    const DOT_BITS: [[u8; 4]; 2] = [
-        [0x01, 0x02, 0x04, 0x40], // left column
-        [0x08, 0x10, 0x20, 0x80], // right column
-    ];
-
     for row in 0..area.height {
         for col in 0..area.width {
             let base_x = col as u32 * 2;
             let base_y = row as u32 * 4;
 
-            let mut pattern: u8 = 0;
-            let mut total_r: u32 = 0;
-            let mut total_g: u32 = 0;
-            let mut total_b: u32 = 0;
-            let mut lit_count: u32 = 0;
+            // Top half: rows 0-1 (2 rows × 2 cols = 4 pixels)
+            let mut top_r: u32 = 0;
+            let mut top_g: u32 = 0;
+            let mut top_b: u32 = 0;
+            let mut top_n: u32 = 0;
+
+            // Bottom half: rows 2-3 (2 rows × 2 cols = 4 pixels)
+            let mut bot_r: u32 = 0;
+            let mut bot_g: u32 = 0;
+            let mut bot_b: u32 = 0;
+            let mut bot_n: u32 = 0;
 
             for dx in 0..2u32 {
                 for dy in 0..4u32 {
                     let px = base_x + dx;
                     let py = base_y + dy;
-                    if px < fb.width && py < fb.height {
-                        let color = fb.get_pixel(px, py);
-                        if color.luminance() > 0.15 {
-                            pattern |= DOT_BITS[dx as usize][dy as usize];
-                            total_r += color.0 as u32;
-                            total_g += color.1 as u32;
-                            total_b += color.2 as u32;
-                            lit_count += 1;
-                        }
+                    let color = if px < fb.width && py < fb.height {
+                        fb.get_pixel(px, py)
+                    } else {
+                        Rgb::BLACK
+                    };
+
+                    if dy < 2 {
+                        top_r += color.0 as u32;
+                        top_g += color.1 as u32;
+                        top_b += color.2 as u32;
+                        top_n += 1;
+                    } else {
+                        bot_r += color.0 as u32;
+                        bot_g += color.1 as u32;
+                        bot_b += color.2 as u32;
+                        bot_n += 1;
                     }
                 }
             }
 
-            let ch = char::from_u32(0x2800 + pattern as u32).unwrap_or(' ');
-            let fg = if lit_count > 0 {
-                Color::Rgb(
-                    (total_r / lit_count) as u8,
-                    (total_g / lit_count) as u8,
-                    (total_b / lit_count) as u8,
-                )
-            } else {
-                Color::Rgb(0, 0, 0)
-            };
+            let upper = Rgb(
+                (top_r / top_n.max(1)) as u8,
+                (top_g / top_n.max(1)) as u8,
+                (top_b / top_n.max(1)) as u8,
+            );
+            let lower = Rgb(
+                (bot_r / bot_n.max(1)) as u8,
+                (bot_g / bot_n.max(1)) as u8,
+                (bot_b / bot_n.max(1)) as u8,
+            );
 
             let cell = &mut buf[(area.x + col, area.y + row)];
-            cell.set_char(ch);
-            cell.set_style(Style::default().fg(fg).bg(Color::Rgb(0, 0, 0)));
+            cell.set_char('▀');
+            cell.set_style(
+                Style::default()
+                    .fg(Color::Rgb(upper.0, upper.1, upper.2))
+                    .bg(Color::Rgb(lower.0, lower.1, lower.2)),
+            );
         }
     }
 }
