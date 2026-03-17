@@ -4,6 +4,14 @@ A 3D software renderer for terminal UIs, built on [ratatui](https://ratatui.rs).
 
 Render 3D scenes directly in your terminal — no GPU required. Load models, add lights, and display everything as a ratatui widget.
 
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/cornell.gif" width="100%" /><br /><sub>Cornell Box</sub></td>
+    <td align="center"><img src="docs/trex.gif" width="100%" /><br /><sub>T-Rex (glTF)</sub></td>
+    <td align="center"><img src="docs/dna.gif" width="100%" /><br /><sub>DNA Helix</sub></td>
+  </tr>
+</table>
+
 ## Features
 
 - **Software rasterizer** with depth buffering and backface culling
