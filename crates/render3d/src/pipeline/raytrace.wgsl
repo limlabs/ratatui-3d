@@ -97,7 +97,9 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let hit = closest_hit(origin, dir);
 
     var color: vec3<f32>;
+    var alpha: u32 = 255u;
     if hit.x < 0.0 {
+        alpha = 0u;
         if u.counts.z == 1u {
             // Sky gradient
             let dy = dir.y;
@@ -168,5 +170,5 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let r = u32(color.x * 255.0);
     let g = u32(color.y * 255.0);
     let b = u32(color.z * 255.0);
-    output[id.y * w + id.x] = r | (g << 8u) | (b << 16u) | (255u << 24u);
+    output[id.y * w + id.x] = r | (g << 8u) | (b << 16u) | (alpha << 24u);
 }

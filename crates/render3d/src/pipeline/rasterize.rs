@@ -82,6 +82,7 @@ pub fn rasterize_triangle(
 
                 fb.depth[idx] = depth;
                 fb.color[idx] = color;
+                fb.alpha[idx] = 255;
             }
         }
     }

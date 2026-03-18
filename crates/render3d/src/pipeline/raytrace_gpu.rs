@@ -260,6 +260,7 @@ impl GpuRenderer {
                     ((packed >> 8) & 0xFF) as u8,
                     ((packed >> 16) & 0xFF) as u8,
                 );
+                fb.alpha[i] = ((packed >> 24) & 0xFF) as u8;
             }
         }
         staging_buf.unmap();

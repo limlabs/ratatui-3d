@@ -1,11 +1,13 @@
 use crate::color::Rgb;
 
-/// A pixel framebuffer with color and depth.
+/// A pixel framebuffer with color, depth, and alpha.
 pub struct Framebuffer {
     pub width: u32,
     pub height: u32,
     pub color: Vec<Rgb>,
     pub depth: Vec<f32>,
+    /// Per-pixel alpha: 0 = background (transparent), 255 = geometry hit (opaque).
+    pub alpha: Vec<u8>,
 }
 
 impl Framebuffer {
@@ -16,6 +18,7 @@ impl Framebuffer {
             height,
             color: vec![Rgb::BLACK; size],
             depth: vec![f32::INFINITY; size],
+            alpha: vec![0; size],
         }
     }
 
@@ -26,12 +29,14 @@ impl Framebuffer {
         let size = (width * height) as usize;
         self.color.resize(size, Rgb::BLACK);
         self.depth.resize(size, f32::INFINITY);
+        self.alpha.resize(size, 0);
     }
 
     /// Clear the framebuffer with a background color.
     pub fn clear(&mut self, bg: Rgb) {
         self.color.fill(bg);
         self.depth.fill(f32::INFINITY);
+        self.alpha.fill(0);
     }
 
     /// Get the index for pixel (x, y).
@@ -50,6 +55,7 @@ impl Framebuffer {
         if depth < self.depth[idx] {
             self.depth[idx] = depth;
             self.color[idx] = color;
+            self.alpha[idx] = 255;
         }
     }
 

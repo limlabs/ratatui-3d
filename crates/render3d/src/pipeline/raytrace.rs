@@ -292,6 +292,7 @@ pub fn render(scene: &Scene, camera: &Camera, fb: &mut Framebuffer) {
             if let Some(hit) = closest_hit(&ray, &tris) {
                 let material = &scene.objects[hit.obj_idx].material;
                 fb.color[idx] = shade(&ray, &hit, material, &scene.lights, &tris);
+                fb.alpha[idx] = 255;
             } else if let Some(sky) = &scene.sky {
                 fb.color[idx] = sky.sample(ray.direction.y);
             }
