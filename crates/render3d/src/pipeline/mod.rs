@@ -67,6 +67,7 @@ pub fn render(scene: &Scene, camera: &Camera, fb: &mut Framebuffer) {
             let tv0 = transform_vertex(
                 vert0.position,
                 vert0.normal,
+                vert0.uv,
                 &model,
                 &view_proj,
                 &normal_matrix,
@@ -76,6 +77,7 @@ pub fn render(scene: &Scene, camera: &Camera, fb: &mut Framebuffer) {
             let tv1 = transform_vertex(
                 vert1.position,
                 vert1.normal,
+                vert1.uv,
                 &model,
                 &view_proj,
                 &normal_matrix,
@@ -85,6 +87,7 @@ pub fn render(scene: &Scene, camera: &Camera, fb: &mut Framebuffer) {
             let tv2 = transform_vertex(
                 vert2.position,
                 vert2.normal,
+                vert2.uv,
                 &model,
                 &view_proj,
                 &normal_matrix,

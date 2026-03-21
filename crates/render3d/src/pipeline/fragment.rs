@@ -10,6 +10,7 @@ use crate::math::Vec3;
 pub fn shade_fragment(
     world_pos: Vec3,
     world_normal: Vec3,
+    base_color: Rgb,
     material: &Material,
     lights: &[Light],
     camera_pos: Vec3,
@@ -61,10 +62,10 @@ pub fn shade_fragment(
         }
     }
 
-    // Multiply accumulated light by material base color
-    let r = (total_r * material.color.0 as f32).clamp(0.0, 255.0) as u8;
-    let g = (total_g * material.color.1 as f32).clamp(0.0, 255.0) as u8;
-    let b = (total_b * material.color.2 as f32).clamp(0.0, 255.0) as u8;
+    // Multiply accumulated light by base color
+    let r = (total_r * base_color.0 as f32).clamp(0.0, 255.0) as u8;
+    let g = (total_g * base_color.1 as f32).clamp(0.0, 255.0) as u8;
+    let b = (total_b * base_color.2 as f32).clamp(0.0, 255.0) as u8;
 
     Rgb(r, g, b)
 }

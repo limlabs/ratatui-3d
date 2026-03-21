@@ -9,6 +9,7 @@ pub mod object;
 pub mod pipeline;
 pub mod primitives;
 pub mod scene;
+pub mod texture;
 pub mod transform;
 
 // Re-exports for convenience
@@ -20,6 +21,7 @@ pub use mesh::{Mesh, Vertex};
 pub use object::SceneObject;
 pub use pipeline::Pipeline;
 pub use scene::{Scene, Sky};
+pub use texture::Texture;
 pub use transform::Transform;
 
 /// Prelude for convenient glob imports.
@@ -34,5 +36,6 @@ pub mod prelude {
     pub use crate::pipeline::Pipeline;
     pub use crate::primitives;
     pub use crate::scene::{Scene, Sky};
+    pub use crate::texture::Texture;
     pub use crate::transform::Transform;
 }

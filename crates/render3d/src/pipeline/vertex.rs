@@ -9,6 +9,8 @@ pub struct TransformedVertex {
     pub world_pos: Vec3,
     /// World-space normal (for lighting calculations).
     pub world_normal: Vec3,
+    /// Texture coordinates.
+    pub uv: [f32; 2],
 }
 
 /// Transform a vertex from model space through the full pipeline.
@@ -17,6 +19,7 @@ pub struct TransformedVertex {
 pub fn transform_vertex(
     position: Vec3,
     normal: Vec3,
+    uv: [f32; 2],
     model: &Mat4,
     view_proj: &Mat4,
     normal_matrix: &Mat4,
@@ -47,5 +50,6 @@ pub fn transform_vertex(
         screen_pos: Vec3::new(screen_x, screen_y, screen_z),
         world_pos,
         world_normal,
+        uv,
     })
 }

@@ -76,9 +76,18 @@ pub fn rasterize_triangle(
                     (v0.world_normal * b0 + v1.world_normal * b1 + v2.world_normal * b2)
                         .normalize_or_zero();
 
+                // Interpolate UV and determine base color
+                let base_color = if let Some(tex) = &material.texture {
+                    let u = v0.uv[0] * b0 + v1.uv[0] * b1 + v2.uv[0] * b2;
+                    let v = v0.uv[1] * b0 + v1.uv[1] * b1 + v2.uv[1] * b2;
+                    tex.sample(u, v)
+                } else {
+                    material.color
+                };
+
                 // Fragment shading
                 let color =
-                    shade_fragment(world_pos, world_normal, material, lights, camera_pos);
+                    shade_fragment(world_pos, world_normal, base_color, material, lights, camera_pos);
 
                 fb.depth[idx] = depth;
                 fb.color[idx] = color;

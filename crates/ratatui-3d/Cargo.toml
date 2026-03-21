@@ -15,7 +15,7 @@ ratatui = "0.30"
 
 [dev-dependencies]
 crossterm = "0.29"
-image = { version = "0.25", default-features = false, features = ["gif"] }
+image = { version = "0.25", default-features = false, features = ["gif", "png"] }
 
 [features]
 default = ["obj", "gltf", "gpu"]
@@ -41,3 +41,6 @@ required-features = ["gltf", "gpu"]
 [[example]]
 name = "trex_gif"
 required-features = ["gltf", "gpu"]
+
+[[example]]
+name = "textured_sphere"

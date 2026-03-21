@@ -44,6 +44,7 @@ fn fragment_ambient_only_produces_color() {
     let color = shade_fragment(
         Vec3::ZERO,
         Vec3::Y,      // normal pointing up
+        material.color,
         &material,
         &lights,
         Vec3::new(0.0, 0.0, 5.0), // camera
@@ -61,6 +62,7 @@ fn fragment_directional_light_produces_color() {
     let color = shade_fragment(
         Vec3::ZERO,
         Vec3::Y,          // surface normal facing up
+        material.color,
         &material,
         &lights,
         Vec3::new(0.0, 1.0, 5.0),
@@ -77,6 +79,7 @@ fn fragment_point_light_produces_color() {
     let color = shade_fragment(
         Vec3::ZERO,
         Vec3::Y,
+        material.color,
         &material,
         &lights,
         Vec3::new(0.0, 0.0, 5.0),
@@ -108,7 +111,7 @@ fn vertex_transform_cube_center_is_on_screen() {
 
     // Transform the origin (center of cube)
     let result = transform_vertex(
-        Vec3::ZERO, Vec3::Z, &model, &view_proj, &normal_matrix, vw, vh,
+        Vec3::ZERO, Vec3::Z, [0.0, 0.0], &model, &view_proj, &normal_matrix, vw, vh,
     );
 
     eprintln!("Origin screen pos: {:?}", result.map(|v| v.screen_pos));
@@ -149,7 +152,7 @@ fn vertex_transform_cube_front_face_all_visible() {
 
     for (i, pos) in positions.iter().enumerate() {
         let result = transform_vertex(
-            *pos, Vec3::Z, &model, &view_proj, &normal_matrix, vw, vh,
+            *pos, Vec3::Z, [0.0, 0.0], &model, &view_proj, &normal_matrix, vw, vh,
         );
         eprintln!("Front face vertex {i} ({pos:?}): screen_pos = {:?}", result.map(|v| v.screen_pos));
         assert!(result.is_some(), "Front face vertex {i} should be visible");
@@ -170,16 +173,19 @@ fn rasterize_front_facing_triangle() {
         screen_pos: Vec3::new(10.0, 40.0, 0.5),
         world_pos: Vec3::ZERO,
         world_normal: Vec3::Z,
+        uv: [0.0, 0.0],
     };
     let v1 = TransformedVertex {
         screen_pos: Vec3::new(50.0, 40.0, 0.5),
         world_pos: Vec3::X,
         world_normal: Vec3::Z,
+        uv: [0.0, 0.0],
     };
     let v2 = TransformedVertex {
         screen_pos: Vec3::new(30.0, 10.0, 0.5),
         world_pos: Vec3::Y,
         world_normal: Vec3::Z,
+        uv: [0.0, 0.0],
     };
 
     let material = Material::default().with_color(Rgb(255, 255, 255));
@@ -202,16 +208,19 @@ fn rasterize_back_facing_triangle_is_culled() {
         screen_pos: Vec3::new(10.0, 10.0, 0.5),
         world_pos: Vec3::ZERO,
         world_normal: Vec3::Z,
+        uv: [0.0, 0.0],
     };
     let v1 = TransformedVertex {
         screen_pos: Vec3::new(50.0, 10.0, 0.5),
         world_pos: Vec3::X,
         world_normal: Vec3::Z,
+        uv: [0.0, 0.0],
     };
     let v2 = TransformedVertex {
         screen_pos: Vec3::new(30.0, 40.0, 0.5),
         world_pos: Vec3::Y,
         world_normal: Vec3::Z,
+        uv: [0.0, 0.0],
     };
 
     let material = Material::default().with_color(Rgb(255, 255, 255));
@@ -249,15 +258,15 @@ fn cube_front_face_winding_after_transform() {
 
     // First triangle of front face: v0=(-0.5,-0.5,0.5), v1=(0.5,-0.5,0.5), v2=(0.5,0.5,0.5)
     let tv0 = transform_vertex(
-        Vec3::new(-0.5, -0.5, 0.5), Vec3::Z, &model, &view_proj, &normal_matrix, vw, vh,
+        Vec3::new(-0.5, -0.5, 0.5), Vec3::Z, [0.0, 0.0], &model, &view_proj, &normal_matrix, vw, vh,
     ).expect("v0 should be visible");
 
     let tv1 = transform_vertex(
-        Vec3::new(0.5, -0.5, 0.5), Vec3::Z, &model, &view_proj, &normal_matrix, vw, vh,
+        Vec3::new(0.5, -0.5, 0.5), Vec3::Z, [0.0, 0.0], &model, &view_proj, &normal_matrix, vw, vh,
     ).expect("v1 should be visible");
 
     let tv2 = transform_vertex(
-        Vec3::new(0.5, 0.5, 0.5), Vec3::Z, &model, &view_proj, &normal_matrix, vw, vh,
+        Vec3::new(0.5, 0.5, 0.5), Vec3::Z, [0.0, 0.0], &model, &view_proj, &normal_matrix, vw, vh,
     ).expect("v2 should be visible");
 
     eprintln!("v0 screen: {:?}", tv0.screen_pos);
