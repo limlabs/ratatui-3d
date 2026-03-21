@@ -21,6 +21,7 @@ Render 3D scenes directly in your terminal — no GPU required. Load models, add
 - **Built-in primitives** — cube, sphere, plane
 - **Camera controls** — orbit, zoom, perspective projection
 - **Ratatui widget** — drops into any ratatui layout as `StatefulWidget` or `Widget`
+- **GIF export** — render to image files with transparent backgrounds using the built-in alpha channel
 
 ## Quick start
 
@@ -84,11 +85,32 @@ let meshes = ratatui_3d::loader::gltf::load_gltf("model.glb")?;
 Run the examples with:
 
 ```sh
-cargo run --example cube    # Interactive scene with cube, sphere, and plane
-cargo run --example trex    # Spinning T-Rex loaded from a glTF model
+cargo run --example cube                      # Interactive scene with cube, sphere, and plane
+cargo run --example trex --features gltf,gpu  # Spinning T-Rex loaded from a glTF model
+cargo run --example trex_gif --features gltf,gpu  # Export T-Rex as transparent GIF
 ```
 
 Controls: arrow keys to orbit, `+`/`-` to zoom, `1`/`2`/`3` to switch render mode, `q` to quit.
+
+## GIF export with transparency
+
+The framebuffer includes a per-pixel alpha channel — pixels where geometry is rendered get `alpha = 255`, and background pixels stay at `0`. This works across all three pipeline backends (rasterize, raytrace CPU, raytrace GPU), so you can render scenes headlessly and export to image formats with transparent backgrounds.
+
+```rust
+use ratatui_3d::pipeline::Framebuffer;
+
+let mut fb = Framebuffer::new(400, 300);
+gpu.render(&scene, &camera, &mut fb);
+
+// Each pixel has color (fb.color) and alpha (fb.alpha)
+for i in 0..(fb.width * fb.height) as usize {
+    let c = fb.color[i];
+    let a = fb.alpha[i]; // 0 = transparent, 255 = opaque
+    // write to your image format of choice
+}
+```
+
+See [`examples/trex_gif.rs`](crates/ratatui-3d/examples/trex_gif.rs) for a full example that renders an animated GIF with auto-cropping and optional pixel scaling for a chunky retro look.
 
 ## API overview
 
@@ -101,6 +123,7 @@ Controls: arrow keys to orbit, `+`/`-` to zoom, `1`/`2`/`3` to switch render mod
 | `Light` | Ambient, directional, or point light |
 | `Camera` | Position/target with orbit and zoom |
 | `Transform` | Position, rotation (quaternion), scale |
+| `Framebuffer` | Pixel buffer with color, depth, and alpha channels |
 | `Viewport3D` | Stateful ratatui widget |
 | `Viewport3DStatic` | One-shot ratatui widget (no persistent state) |
 | `RenderMode` | HalfBlock, Braille, or Ascii |
