@@ -28,6 +28,9 @@ cargo run -p ratatui-3d --example trex --features gltf,gpu
 cargo run -p ratatui-3d --example cornell --features gpu
 cargo run -p ratatui-3d --example dna --features gltf,gpu
 
+# GIF export example (requires gltf,gpu features + assets/trex.glb)
+cargo run -p ratatui-3d --example trex_gif --features gltf,gpu
+
 # Node.js bindings (from crates/render3d-node/)
 npm run build          # napi build --release
 npm run build:debug    # napi build
@@ -67,6 +70,14 @@ Pipeline stages: vertex transformation (`vertex.rs`) → rasterization/ray casti
 ### Node.js Bindings
 
 `render3d-node` exposes a `Renderer` class via NAPI. Methods for scene construction, camera setup, and `render()`/`render_raytrace()` returning raw RGB pixel buffers.
+
+### GIF Export
+
+The `Framebuffer` carries a per-pixel `alpha` channel (0 = background/transparent, 255 = geometry hit). All three pipeline backends (rasterize, raytrace CPU, raytrace GPU) write alpha on fragment output. This enables rendering to image files with transparent backgrounds.
+
+The `trex_gif` example demonstrates the workflow: render frames to a `Framebuffer`, use the `alpha` buffer to produce RGBA pixels, auto-crop to the bounding box of opaque pixels, and encode with the `image` crate's GIF encoder. It outputs two variants — a chunky pixel-scaled "terminal style" GIF and a smooth high-res GIF.
+
+The `image` dependency (GIF feature only) lives in `ratatui-3d` for the example; the core `render3d` crate has no image I/O dependency.
 
 ## Tests
 
