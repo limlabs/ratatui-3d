@@ -22,7 +22,7 @@ impl RenderMode {
         match self {
             RenderMode::HalfBlock => (area.width as u32, area.height as u32 * 2),
             RenderMode::Braille => (area.width as u32 * 2, area.height as u32 * 4),
-            RenderMode::Ascii => (area.width as u32 * 2, area.height as u32 * 2),
+            RenderMode::Ascii => (area.width as u32, area.height as u32 * 2),
         }
     }
 
@@ -138,39 +138,30 @@ fn blit_braille(fb: &Framebuffer, area: Rect, buf: &mut Buffer) {
 
 const ASCII_RAMP: &[u8] = b" .:-=+*#%@";
 
-/// ASCII blit: 2×2 pixel block per cell, averaged and mapped to a character ramp.
-/// Renders at double resolution in both axes for correct aspect ratio.
+/// ASCII blit: 1×2 pixel block per cell, averaged and mapped to a character ramp.
+/// Uses same pixel layout as HalfBlock (1 col, 2 rows per cell) for correct aspect ratio.
 fn blit_ascii(fb: &Framebuffer, area: Rect, buf: &mut Buffer) {
     for row in 0..area.height {
         for col in 0..area.width {
-            let base_x = col as u32 * 2;
-            let base_y = row as u32 * 2;
+            let px = col as u32;
+            let py_upper = row as u32 * 2;
+            let py_lower = py_upper + 1;
 
-            let mut total_r: u32 = 0;
-            let mut total_g: u32 = 0;
-            let mut total_b: u32 = 0;
-            let mut n: u32 = 0;
-
-            for dy in 0..2u32 {
-                for dx in 0..2u32 {
-                    let px = base_x + dx;
-                    let py = base_y + dy;
-                    let c = if px < fb.width && py < fb.height {
-                        fb.get_pixel(px, py)
-                    } else {
-                        Rgb::BLACK
-                    };
-                    total_r += c.0 as u32;
-                    total_g += c.1 as u32;
-                    total_b += c.2 as u32;
-                    n += 1;
-                }
-            }
+            let upper = if px < fb.width && py_upper < fb.height {
+                fb.get_pixel(px, py_upper)
+            } else {
+                Rgb::BLACK
+            };
+            let lower = if px < fb.width && py_lower < fb.height {
+                fb.get_pixel(px, py_lower)
+            } else {
+                Rgb::BLACK
+            };
 
             let color = Rgb(
-                (total_r / n) as u8,
-                (total_g / n) as u8,
-                (total_b / n) as u8,
+                ((upper.0 as u32 + lower.0 as u32) / 2) as u8,
+                ((upper.1 as u32 + lower.1 as u32) / 2) as u8,
+                ((upper.2 as u32 + lower.2 as u32) / 2) as u8,
             );
 
             let lum = color.luminance();
