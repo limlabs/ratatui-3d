@@ -101,7 +101,7 @@ pub fn sphere(stacks: u32, slices: u32) -> Mesh {
         for j in 0..slices {
             let a = i * (slices + 1) + j;
             let b = a + slices + 1;
-            indices.extend_from_slice(&[a, b, a + 1, b, b + 1, a + 1]);
+            indices.extend_from_slice(&[a, a + 1, b, b, a + 1, b + 1]);
         }
     }
 
@@ -117,6 +117,6 @@ pub fn plane() -> Mesh {
         Vertex::new(Vec3::new(0.5, 0.0, 0.5), normal).with_uv(1.0, 1.0),
         Vertex::new(Vec3::new(-0.5, 0.0, 0.5), normal).with_uv(0.0, 1.0),
     ];
-    let indices = vec![0, 1, 2, 0, 2, 3];
+    let indices = vec![0, 2, 1, 0, 3, 2];
     Mesh::new(vertices, indices)
 }

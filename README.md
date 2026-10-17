@@ -10,6 +10,11 @@ Render 3D scenes directly in your terminal — no GPU required. Load models, add
     <td align="center"><img src="docs/trex.gif" width="100%" /><br /><sub>T-Rex (glTF)</sub></td>
     <td align="center"><img src="docs/dna.gif" width="100%" /><br /><sub>DNA Helix</sub></td>
   </tr>
+  <tr>
+    <td align="center"><img src="docs/cube.gif" width="100%" /><br /><sub>Cube (primitives)</sub></td>
+    <td align="center"><img src="docs/textured_sphere.gif" width="100%" /><br /><sub>Textured Sphere</sub></td>
+    <td></td>
+  </tr>
 </table>
 
 ## Features
@@ -87,7 +92,9 @@ Run the examples with:
 ```sh
 cargo run --example cube                      # Interactive scene with cube, sphere, and plane
 cargo run --example trex --features gltf,gpu  # Spinning T-Rex loaded from a glTF model
+cargo run --example textured_sphere           # Rotating sphere with an image texture
 cargo run --example trex_gif --features gltf,gpu  # Export T-Rex as transparent GIF
+cargo run --release --example readme_gifs     # Regenerate docs/cube.gif and docs/textured_sphere.gif
 ```
 
 Controls: arrow keys to orbit, `+`/`-` to zoom, `1`/`2`/`3` to switch render mode, `q` to quit.

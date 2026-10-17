@@ -344,3 +344,32 @@ fn framebuffer_depth_test() {
     fb.set_pixel(5, 5, 0.8, Rgb(0, 0, 255));
     assert_eq!(fb.get_pixel(5, 5), Rgb(0, 255, 0));
 }
+
+// ============================================================
+// Unit test: Primitive winding matches vertex normals
+// ============================================================
+
+/// Every non-degenerate triangle must be CCW when viewed from the side its
+/// vertex normals point to, otherwise the rasterizer culls the front faces.
+fn assert_outward_winding(name: &str, mesh: &Mesh) {
+    for tri in 0..mesh.triangle_count() {
+        let v = |k: usize| &mesh.vertices[mesh.indices[tri * 3 + k] as usize];
+        let (v0, v1, v2) = (v(0), v(1), v(2));
+        let face_normal = (v1.position - v0.position).cross(v2.position - v0.position);
+        if face_normal.length_squared() < 1e-12 {
+            continue; // degenerate (e.g. sphere pole)
+        }
+        let vertex_normal = v0.normal + v1.normal + v2.normal;
+        assert!(
+            face_normal.dot(vertex_normal) > 0.0,
+            "{name}: triangle {tri} is wound clockwise relative to its normals"
+        );
+    }
+}
+
+#[test]
+fn primitives_have_outward_ccw_winding() {
+    assert_outward_winding("cube", &primitives::cube());
+    assert_outward_winding("sphere", &primitives::sphere(16, 24));
+    assert_outward_winding("plane", &primitives::plane());
+}

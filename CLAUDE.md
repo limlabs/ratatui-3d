@@ -31,6 +31,9 @@ cargo run -p ratatui-3d --example dna --features gltf,gpu
 # GIF export example (requires gltf,gpu features + assets/trex.glb)
 cargo run -p ratatui-3d --example trex_gif --features gltf,gpu
 
+# Regenerate README GIFs docs/cube.gif and docs/textured_sphere.gif (headless)
+cargo run --release -p ratatui-3d --example readme_gifs
+
 # Node.js bindings (from crates/render3d-node/)
 npm run build          # napi build --release
 npm run build:debug    # napi build
